@@ -11,12 +11,14 @@ device = usb.core.find(idVendor=VENDOR_ID,
                        idProduct=PRODUCT_ID)
 
 def device_ready():
-	return device is None
+	device = usb.core.find(idVendor=VENDOR_ID, idProduct=PRODUCT_ID)
+	return device is not None
 
-def get_scale_data():	
+def get_data():	
 	# use the first/default configuration
-	if not device_ready():
-		return False
+	if device is None:
+	    print "DEVICE IS NOT READY SOMEHOW"
+	    return False
 		
 	reattach = False
 	if device.is_kernel_driver_active(0):
@@ -40,5 +42,5 @@ def get_scale_data():
 	            attempts -= 1
 	            continue
 
-	print data
-	return data
+	print data[4]
+	return data[4]
