@@ -42,7 +42,7 @@ def valves(request):
 	elif request.method == 'GET':
 		#Get list of all current liquid registrations
 		print "Getting all valve registrations"
-		data = {"valves": serialize_valves(Valve.objects.all())}
+		data = serialize_valves(Valve.objects.all())
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def liquids(request):
@@ -86,12 +86,11 @@ def liquids(request):
 				liquid = Liquid.objects.get(name=request.GET["name"])
 			except Liquid.DoesNotExist:
 				liquid = {}
-			data = {"liquids": serialize_liquids([liquid])}
+			data = serialize_liquids([liquid])
 		else:
-			data = {"liquids": serialize_liquids(Liquid.objects.all())}
+			data = serialize_liquids(Liquid.objects.all())
 	return HttpResponse(json.dumps(data), content_type="application/json")
 			
-
 def recipes(request):
 	if request.method == 'POST':
 		#Register a new recipe
@@ -136,9 +135,9 @@ def recipes(request):
 				recipe = Recipe.objects.get(name=request.GET["name"])
 			except Recipe.DoesNotExist:
 				recipe = {}
-			data = {"recipes": serialize_recipes([recipe])}
+			data = serialize_recipes([recipe])
 		else:
-			data = {"recipes": serialize_recipes(Recipe.objects.all())}
+			data = serialize_recipes(Recipe.objects.all())
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 
@@ -155,7 +154,7 @@ def drinks(request):
 			DrinkManager.add_request(request.POST['recipe_name'])
 		data = json.dumps({"success": success})
 	elif request.method == 'GET':
-		data = {"drinkRequests": serializers.serialize('json', DrinkRequest.objects.all())}
+		data = serializers.serialize('json', DrinkRequest.objects.all())
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def serialize_recipes(recipes):

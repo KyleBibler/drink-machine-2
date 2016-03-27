@@ -1,7 +1,15 @@
 from django.db import models
 
+class IntegerRangeField(models.IntegerField):
+    def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
+        self.min_value, self.max_value = min_value, max_value
+        models.IntegerField.__init__(self, verbose_name, name, **kwargs)
+    def formfield(self, **kwargs):
+        defaults = {'min_value': self.min_value, 'max_value':self.max_value}
+        defaults.update(kwargs)
+        return super(IntegerRangeField, self).formfield(**defaults)
+
 class Valve(models.Model):
-	is_registered = models.BooleanField(default=False)
 	servo_pin = models.IntegerField(unique=True)
 	angle_closed = models.IntegerField()
 	angle_open = models.IntegerField()
@@ -37,7 +45,7 @@ class LiquidAmount(models.Model):
 	recipe = models.ForeignKey(Recipe)
 	liquid = models.ForeignKey(Liquid)
 	#volume in mL
-	volume = models.IntegerRangeField(min_value=1, max_value=450, default=45) 
+	volume = IntegerRangeField(min_value=1, max_value=450, default=45) 
 
 	def __repr__(self):
 		return "<Recipe: %s - Liquid: %s %smL>" % (str(self.recipe.name), str(self.liquid.name), str(self.volume))
