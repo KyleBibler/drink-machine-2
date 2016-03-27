@@ -37,7 +37,7 @@
 			<div class="dm-recipes-container" id="dmRecipesContainer">
 				<div class="row">
 					<div class="col-sm-3 col-xs-12" ng-repeat="recipe in readyRecipes">
-						<div bk-recipe recipe="recipe" liquids="liquids" recipes="recipes" update-fn="updateReadyRecipes()" state="'make'"></div>
+						<div bk-recipe="make" recipe="recipe" liquids="liquids" recipes="recipes" update-fn="updateReadyRecipes()"></div>
 					</div>
 				</div>
 			</div>
@@ -46,7 +46,7 @@
 			<button class="btn btn-success" ng-click="addRecipe()">Add Recipe</button>
 			<br><br>
 			<div class="row">
-				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids" recipes="recipes" update-fn="updateReadyRecipes()" state="'display'">
+				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe="display" recipe="recipe" liquids="liquids" recipes="recipes" update-fn="updateReadyRecipes()">
 				</div>
 			</div>
 		</div>
