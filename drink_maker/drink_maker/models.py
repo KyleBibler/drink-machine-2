@@ -37,7 +37,7 @@ class LiquidAmount(models.Model):
 	recipe = models.ForeignKey(Recipe)
 	liquid = models.ForeignKey(Liquid)
 	#volume in mL
-	volume = models.DecimalField(max_digits=8, decimal_places=1) 
+	volume = models.IntegerRangeField(min_value=1, max_value=450, default=45) 
 
 	def __repr__(self):
 		return "<Recipe: %s - Liquid: %s %smL>" % (str(self.recipe.name), str(self.liquid.name), str(self.volume))

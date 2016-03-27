@@ -1,7 +1,8 @@
 
 var recipes = [],
 	liquids = [],
-	valves = [];
+	valves = [],
+	views = ["drink-maker-container","recipe-editor-container","liquid-editor-container","valve-config-container"];
 
 var loadDrinkMakerHtml = function(recipes) {
 	var html = '<div class="row">';
@@ -20,7 +21,7 @@ var loadDrinkMakerHtml = function(recipes) {
 };
 
 var swapViews = function(view) {
-	["drink-maker-container","recipe-editor-container","liquid-editor-container","valve-config-container"].forEach(function(v) {
+	views.forEach(function(v) {
 		if(view !== v) { $('.'+v).hide(); }
 	});
 	$('.'+view).show();
