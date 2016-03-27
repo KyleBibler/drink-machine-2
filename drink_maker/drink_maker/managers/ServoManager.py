@@ -1,16 +1,17 @@
 from django.apps import apps
 
-import RPi.GPIO as GPIO
+#JR: import RPi.GPIO as GPIO 
 import time
 
 def set_pin(pin_num, old_pwm=None):
-	if old_pwm is None:
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(pin_num, GPIO.OUT)
-		pwm = GPIO.PWM(pin_num, 100)
-		#pwm.start(5)
-	else:
-		pwm = old_pwm
+	pwn = None #JR
+	# if old_pwm is None:
+	# 	#JR: GPIO.setmode(GPIO.BCM)
+	# 	#JR: GPIO.setup(pin_num, GPIO.OUT)
+	# 	#JR: pwm = GPIO.PWM(pin_num, 100)
+	# 	#pwm.start(5)
+	# else:
+	# 	pwm = old_pwm
 	pwm.start(5)
 	return pwm
 

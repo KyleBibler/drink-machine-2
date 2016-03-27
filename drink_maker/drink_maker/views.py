@@ -38,8 +38,11 @@ def valves(request, pk=None):
 			data = serialize_valves([valve])[0]
 	elif request.method == 'GET':
 		#Get list of all current liquid registrations
-		print "Getting all valve registrations"
-		data = serialize_valves(Valve.objects.all())
+		if pk:
+			data = serialize_valves([Valve.objects.get(pk=pk)])[0]
+		else:
+			data = serialize_valves(Valve.objects.all())
+
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def liquids(request, pk=None):
@@ -102,7 +105,8 @@ def liquids(request, pk=None):
 	return HttpResponse(json.dumps(data), content_type="application/json")
 			
 def recipes(request, pk=None):
-	data = 'shit'
+	data = 'foo'
+	# body = yaml.safe_load(request.body)
 	if request.method == 'POST':
 		#Register a new recipe
 		errors = []		
@@ -176,6 +180,8 @@ def recipes(request, pk=None):
 			except Recipe.DoesNotExist:
 				recipe = {}
 			data = serialize_recipes([recipe])[0]
+		elif 'inMachine' in request.GET:
+			data = serialize_recipes(get_recipes_in_machine())
 		else:
 			data = serialize_recipes(Recipe.objects.all())
 
@@ -189,13 +195,14 @@ def drinks(request):
 	print "\n=============================\nDRANK\n=============================\n"
 	if request.method == 'POST':
 		#Make a drink?
+		body = yaml.safe_load(request.body)
 		errors = []
-		if 'recipe_name' not in request.POST:
+		if 'recipe_pk' not in body:
 			success = False
 		if DrinkRequest.objects.all().count() > 0:
 			success = False
 		else:
-			DrinkManager.add_request(request.POST['recipe_name'])
+			DrinkManager.add_request(body['recipe_pk'])
 		data = json.dumps({"success": success})
 	elif request.method == 'GET':
 		DrinkManager.add_request('Rum and Coke')
@@ -245,3 +252,21 @@ def serialize_liquids(liquids):
 			l["valve"] = None
 		result.append(l)
 	return result
+
+
+def get_recipes_in_machine():
+	recipes = Recipe.objects.all()
+	filtered = []
+
+	for recipe in recipes:
+		if recipe_in_machine(recipe):
+			filtered.append(recipe)
+
+	return filtered
+
+
+def recipe_in_machine(recipe):
+	for la in recipe.liquidamount_set.all():
+		if la.liquid.valve is None:
+			return False
+	return True

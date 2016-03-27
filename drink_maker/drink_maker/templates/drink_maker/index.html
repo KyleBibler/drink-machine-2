@@ -35,8 +35,10 @@
 		<h1 ng-bind="title"></h1>
 		<div class="drink-maker-container" ng-switch-when="home">
 			<div class="dm-recipes-container" id="dmRecipesContainer">
-				<div ng-repeat="recipe in recipes">
-					<p>Recipe: <span ng-bind="recipe.name"></span></p>
+				<div class="row">
+					<div class="col-sm-3 col-xs-12" ng-repeat="recipe in readyRecipes">
+						<div bk-recipe recipe="recipe" liquids="liquids" recipes="recipes" update-fn="updateReadyRecipes()" state="'make'"></div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -44,7 +46,7 @@
 			<button class="btn btn-success" ng-click="addRecipe()">Add Recipe</button>
 			<br><br>
 			<div class="row">
-				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids" recipes="recipes">
+				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids" recipes="recipes" update-fn="updateReadyRecipes()" state="'display'">
 				</div>
 			</div>
 		</div>

@@ -3,9 +3,9 @@ from drink_maker.models import Recipe, Valve, DrinkRequest, Liquid, LiquidAmount
 from drink_maker.managers import ScaleManager, ServoManager
 import time
 
-def add_request(recipe_name):
+def add_request(recipe_pk):
 	try:
-		recipe = Recipe.objects.get(name=recipe_name)
+		recipe = Recipe.objects.get(pk=recipe_pk)
 	except Recipe.DoesNotExist:
 		recipe = None
 	if recipe is None:
