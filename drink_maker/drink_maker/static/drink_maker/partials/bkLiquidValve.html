@@ -1,0 +1,19 @@
+<div class="col-md-6 text-center" style="position: relative;">
+	<button class="btn btn-info" style="position: absolute; top: 5px; right: 5px"
+		ng-click="edit()">
+		<i class="fa fa-edit"></i>
+	</button>
+	<h6>Valve <span ng-bind="valve.pk"></span>:</h6>
+	<div ng-if="state=='editing'">
+		<div class="form-group">
+			<select ng-options="liquid.name for liquid in liquids"class="form-control" ng-model="valve.liquid">
+				<!-- <option value="">-Select-</option>
+				<option ng-repeat="liquid in liquids | filter: filterLiquids">{{liquid.name}}</option> -->
+			</select>
+		</div>
+		<button class="btn btn-success" ng-click="saveValve()">Save</button>
+	</div>
+	<div ng-if="state=='display'">
+		<p>Liquid: <span ng-bind="valve.liquid.name"></span></p>		
+	</div>
+</div>

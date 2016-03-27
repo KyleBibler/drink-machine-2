@@ -124,7 +124,41 @@ angular.module('Barkeep', [
 	};
 }])
 
+.directive('bkLiquidValve', ['RestApi', function (RestApi) {
+	function link (scope, element, attr) {
+		scope.state = 'display';
 
+		scope.edit = function () {
+			scope.state = scope.state == 'editing' ? 'display' : 'editing';
+			if (scope.state == 'display') {
+				scope.recipe = RestApi.getValve(scope.recipe.pk);
+			}
+		}
+
+		// scope.filterLiquids = function (hash) {
+		// 	return !scope.recipe.components.some(function (e) {
+		// 		return e.name == hash.name;
+		// 	});
+		// };
+
+		scope.saveValve = function () {
+			RestApi.saveRecipe(scope.valve, function () {
+				scope.state = 'display';
+			});
+		}
+
+	}
+
+	return {
+		templateUrl: '/static/drink_maker/partials/bkLiquidValve.html',
+		restrict: 'A',
+		scope: {
+			liquids: '=',
+			valve: '='
+		},
+		link: link
+	};
+}])
 
 
 
@@ -157,7 +191,7 @@ angular.module('Barkeep', [
 .factory('RestApi', ['$resource', function ($resource) {
 	var recipeApi = $resource('/recipes/:recipeId/', {recipeId: '@pk'}),
 		liquidApi = $resource('/liquids/:liquidId/', {liquidId: '@pk'}),
-		valveApi = $resource('/valves/:valveId', {valveId: 'valve_pk'});
+		valveApi = $resource('/valves/:valveId/', {valveId: '@pk'});
 
 	return {
 		getRecipes: function () {
@@ -174,7 +208,10 @@ angular.module('Barkeep', [
 		},
 		getValves: function() {
 			return valveApi.query();
-		}, 
+		},
+		editValve: function(valve, callback) {
+			vale.$save(callback);
+		},
 		getRecipe: function (pk) {
 			return recipeApi.get({recipeId: pk});
 		},
