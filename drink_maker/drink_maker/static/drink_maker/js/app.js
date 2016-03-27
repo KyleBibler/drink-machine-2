@@ -82,7 +82,8 @@ angular.module('Barkeep', [
 }])
 
 .directive('bkRecipe', ['RestApi', function (RestApi) {
-	function link (scope, element, attr) {
+	function link (scope, element, attrs) {
+		scope.state = attrs['bkRecipe'];
 		if (scope.state != 'make') {
 			scope.state = scope.recipe.pk != undefined ? 'display' : 'editing';
 		}
@@ -147,8 +148,7 @@ angular.module('Barkeep', [
 			recipe: '=',
 			liquids: '=',
 			recipes: '=',
-			updateFn: '&',
-			state: '='
+			updateFn: '&'
 		},
 		link: link
 	};

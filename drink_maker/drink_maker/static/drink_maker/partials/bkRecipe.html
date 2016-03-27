@@ -12,7 +12,7 @@
     </h3>
   </div>
   <div class="panel-body">
-    <div ng-if="state == 'display' || 'make'">
+    <div ng-if="state == 'display' || state == 'make'">
 	    <ul>
 			<li ng-repeat="item in recipe.components">{{item.volume}} mL - {{item.name}}</li>
 		</ul>
