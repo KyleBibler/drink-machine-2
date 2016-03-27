@@ -5,7 +5,11 @@ angular.module('Barkeep', [
 .config(['$httpProvider', '$resourceProvider', function($httpProvider, $resourceProvider) {
     // $httpProvider.defaults.headers.post['X-CSRFToken'] = $.cookie('csrftoken');
     $httpProvider.defaults.headers.post['X-CSRFToken'] = csrftoken;
-    $resourceProvider.defaults.stripTrailingSlashes = false;
+    $httpProvider.defaults.headers['delete'] = {
+    	'Content-Type': "application/json;charset=utf-8",
+		'X-CSRFToken': csrftoken
+	};
+    $resourceProvider.defaults.stripTrailingSlashes = false;;
 }])
 
 .controller('MainCtrl', ['$scope', 'RestApi', function ($scope, RestApi) {
@@ -37,7 +41,7 @@ angular.module('Barkeep', [
 	}
 
 	$scope.addRecipe = function () {
-		
+		$scope.recipes.unshift(RestApi.newRecipe());
 	};
 
 	$scope.openAdd = function(isAdding) {
@@ -72,17 +76,16 @@ angular.module('Barkeep', [
 
 .directive('bkRecipe', ['RestApi', function (RestApi) {
 	function link (scope, element, attr) {
-		scope.state = 'display';
+		scope.state = scope.recipe.pk != undefined ? 'display' : 'editing';
 		scope.deleteRecipe = function (recipe) {
-			RestApi.deleteRecipe(recipe);
+			RestApi.deleteRecipe(recipe, function () {
+				scope.recipes.splice(scope.recipes.indexOf(scope.recipe), 1);
+			});
 		};
 
 		scope.edit = function () {
 			scope.state = scope.state == 'editing' ? 'display' : 'editing';
-			if (scope.state == 'display') {
-				scope.recipe = RestApi.getRecipe(scope.recipe.pk);
-			}
-		}
+		};
 
 		scope.filterLiquids = function (hash) {
 			return !scope.recipe.components.some(function (e) {
@@ -109,7 +112,16 @@ angular.module('Barkeep', [
 			RestApi.saveRecipe(recipe, function () {
 				scope.state = 'display';
 			});
-		}
+		};
+
+		scope.cancelSave = function () {
+			if (scope.recipe.pk == undefined) {
+				scope.recipes.splice(scope.recipes.indexOf(scope.recipe), 1);
+			} else {
+				scope.recipe = RestApi.getRecipe(scope.recipe.pk);
+			}
+			scope.state = 'display';
+		};
 
 	}
 
@@ -118,7 +130,8 @@ angular.module('Barkeep', [
 		restrict: 'A',
 		scope: {
 			recipe: '=',
-			liquids: '='
+			liquids: '=',
+			recipes: '='
 		},
 		link: link
 	};
@@ -221,6 +234,9 @@ angular.module('Barkeep', [
 		},
 		deleteRecipe: function (recipe, callback) {
 			recipe.$delete(callback);
+		},
+		newRecipe: function () {
+			return new recipeApi({name: 'Untitled', components: []});
 		}
 	};
 }]);
