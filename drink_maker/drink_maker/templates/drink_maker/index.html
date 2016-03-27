@@ -15,22 +15,24 @@
 		<a class="company-logo" href="">Logo</a>
 
 		<div class="sidebar-links">
-			<a class="link-blue cur-point" ng-class="{selected: view.value == 'home'}" ng-click="view.value = 'home'">
+			<a class="link-blue cur-point" ng-class="{selected: view.value == 'home'}" ng-click="changeView('home')">
 				<i class="fa fa-beer"></i>Drink Maker
 			</a>
-			<a class="link-red cur-point" ng-class="{selected: view.value == 'recipe'}" ng-click="view.value = 'recipe'">
+			<a class="link-red cur-point" ng-class="{selected: view.value == 'recipe'}" ng-click="changeView('recipe')">
 				<i class="fa fa-edit"></i>Recipe Editor
 			</a>
-			<a class="link-green cur-point" ng-class="{selected: view.value == 'liquid'}" ng-click="view.value = 'liquid'">
+			<a class="link-green cur-point" ng-class="{selected: view.value == 'liquid'}" ng-click="changeView('liquid')">
 				<i class="fa fa-tint"></i>Liquid Editor
 				</a>			
-			<a class="link-yellow cur-point" ng-class="{selected: view.value == 'valve'}" ng-click="view.value = 'valve'">
+			<a class="link-yellow cur-point" ng-class="{selected: view.value == 'valve'}" ng-click="changeView('valve')">
 				<i class="fa fa-cogs"></i>Valve Config
 			</a>
 		</div>
 
 	</aside>
 	<div class="main-content" ng-switch="view.value">
+
+		<h1 ng-bind="title"></h1>
 		<div class="drink-maker-container" ng-switch-when="home">
 			<div class="dm-recipes-container" id="dmRecipesContainer">
 				<div ng-repeat="recipe in recipes">
@@ -39,6 +41,10 @@
 			</div>
 		</div>
 		<div class="recipe-editor-container" ng-switch-when="recipe">
+			<div class="row">
+				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids">
+				</div>
+			</div>
 		</div>
 		<div class="liquid-editor-container" ng-switch-when="liquid">
 			<div class="row">

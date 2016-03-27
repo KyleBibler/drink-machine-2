@@ -19,7 +19,9 @@ from . import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^recipes/', views.recipes, name='recipe'),
+    
+    url(r'^recipes/(?P<pk>\d+)/$', views.recipes, name='recipe'),
+    url(r'^recipes/$', views.recipes, name='recipe'),
     url(r'^valves/', views.valves, name='valve'),
     url(r'^drinks/', views.drinks, name='drink'),
     url(r'^liquids/$', views.liquids, name='liquid'),
