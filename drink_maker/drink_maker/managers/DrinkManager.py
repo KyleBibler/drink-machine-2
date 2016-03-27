@@ -13,7 +13,8 @@ def add_request(recipe_pk):
 	print "Making recipe " + str(recipe.name)
 	req = DrinkRequest(recipe=recipe)
 	req.save()
-	return make_drink(recipe)
+	make_drink(recipe)
+	req.delete()
 
 def make_drink(recipe):
 	print "Making that drink"
