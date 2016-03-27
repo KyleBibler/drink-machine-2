@@ -31,8 +31,9 @@ def make_drink(recipe):
 				print "The target weight is " + str(target_weight)
 				#there is a cup on the scale
 				pwm = ServoManager.set_pin(valve.servo_pin)
-				ServoManager.set_angle(pwm, valve.angle_open)
-				ServoManager.tear_down(pwm,valve.servo_pin)
+				ServoManager.start(pwm)
+				ServoManager.set_angle(pwm, 7)
+				#ServoManager.tear_down()
 				cutoff_time = time.time() + 10
 				current_scale_data = ScaleManager.get_data()
 				prev_scale_data = current_scale_data
@@ -43,12 +44,12 @@ def make_drink(recipe):
 						prev_scale_data = current_scale_data
 					time.sleep(0.01)
 				print "Scale Data " + str(ScaleManager.get_data())
-				ServoManager.set_pin(valve.servo_pin, old_pwm=pwm)
-				ServoManager.set_angle(pwm,valve.angle_closed)
-				ServoManager.tear_down(pwm,valve.servo_pin)
+				#ServoManager.start(pwm)
+				ServoManager.set_angle(pwm, 16)
+				ServoManager.tear_down(pwm)
 		else:
 			print "SCALE MANAGER IS NOT READY?"
-	#time.sleep(3)
+	#time.sleep(0.5)
 	return True
 
 

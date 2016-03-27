@@ -205,7 +205,7 @@ def drinks(request):
 			DrinkManager.add_request(body['recipe_pk'])
 		data = json.dumps({"success": success})
 	elif request.method == 'GET':
-		DrinkManager.add_request(Recipe.objects.get(name='Rum and Coke').pk)
+		DrinkManager.add_request(Recipe.objects.get(name='Rum and Tequila').pk)
 		data = {}
 		#data = serializers.serialize('json', DrinkRequest.objects.all())
 	return HttpResponse(json.dumps(data), content_type="application/json")
