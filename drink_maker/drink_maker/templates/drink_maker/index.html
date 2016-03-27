@@ -1,9 +1,65 @@
 <!DOCTYPE html>
 <html>
 <head>
+	{% load staticfiles %}
 	<title>Drink Maker</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+	<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.6/paper/bootstrap.min.css" rel="stylesheet">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet">
+	<link href="{% static 'drink_maker/css/sidebar-left.css' %}" rel="stylesheet">
+	<link href="{% static 'drink_maker/css/app.css' %}" rel="stylesheet">
 </head>
 <body>
-	<h1>This is the Drink Maker</h1>
+	<aside class="sidebar-left">
+
+		<a class="company-logo" href="">Logo</a>
+
+		<div class="sidebar-links">
+			<a class="link-blue selected cur-point" onclick="swapViews('drink-maker-container')">
+				<i class="fa fa-beer"></i>Drink Maker
+			</a>
+			<a class="link-red cur-point" onclick="swapViews('recipe-editor-container')">
+				<i class="fa fa-edit"></i>Recipe Editor
+			</a>
+			<a class="link-green cur-point" onclick="swapViews('liquid-editor-container')">
+				<i class="fa fa-tint"></i>Liquid Editor
+				</a>			
+			<a class="link-yellow cur-point" onclick="swapViews('valve-config-container')">
+				<i class="fa fa-cogs"></i>Valve Config
+			</a>
+		</div>
+
+	</aside>
+	<div class="main-content">
+		<h1>This is the Drink Maker</h1>
+		<div class="drink-maker-container">
+			<div class="dm-recipes-container" id="dmRecipesContainer"></div>
+		</div>
+		<div class="recipe-editor-container">
+		</div>
+		<div class="liquid-editor-container">
+		</div>
+		<div class="valve-config-container">
+		</div>		
+
+	</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="{% static 'drink_maker/js/ajaxSetup.js' %}"></script>
+<script src="{% static 'drink_maker/js/app.js' %}"></script>
+<script>
+
+		$(function () {
+
+			var links = $('.sidebar-links > a');
+
+			links.on('click', function () {
+
+				links.removeClass('selected');
+				$(this).addClass('selected');
+
+			})
+		});
+
+	</script>
 </body>
 </html>

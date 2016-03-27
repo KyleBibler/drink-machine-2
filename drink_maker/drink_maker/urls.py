@@ -19,8 +19,9 @@ from . import views
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^recipe/', views.recipe, name='recipe'),
-    url(r'^valve/', views.valve, name='valve'),
-    url(r'^drink/', views.drink, name='drink'),
+    url(r'^recipes/', views.recipes, name='recipe'),
+    url(r'^valves/', views.valves, name='valve'),
+    url(r'^drinks/', views.drinks, name='drink'),
+    url(r'^liquids/', views.liquids, name='liquid'),
     url(r'^$', views.index, name='index')
 ]

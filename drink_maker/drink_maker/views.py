@@ -13,7 +13,7 @@ def index(request):
 	print "I am here"
 	return render(request, 'drink_maker/index.html')
 
-def valve(request):
+def valves(request):
 	if request.method == 'POST':
 		#Register a liquid to a valve
 		errors = []
@@ -43,13 +43,13 @@ def valve(request):
 		#Get list of all current liquid registrations
 		print "Getting all valve registrations"
 		data = {"valves": serialize_valves(Valve.objects.all())}
-	return HttpResponse(json.dumps(data))
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
-def liquid(request):
+def liquids(request):
 	if request.method == 'POST':
 		#Register, update, or delete a liquid
 		errors = []
-		if(all(x in request.POST for x in [''])):
+		if(any(x in request.POST for x in ['name', 'density', 'valve_pk'])):
 			if('liquid_pk' in request.POST):
 				#Update this liquid			
 				try:
@@ -58,6 +58,22 @@ def liquid(request):
 					liquid = None
 					success = False
 					errors.append("Liquid does not exist")
+			else:
+				liquid = Liquid()
+			if liquid is not None:
+				if 'name' in request.POST:
+					liquid.name = request.POST['name']
+				if 'density' in request.POST:
+					liquid.density = request.POST['density']
+				if 'valve_pk' in request.POST:
+					try:
+						valve = Valve.objects.get(pk=request.POST["valve_pk"])
+						liquid.valve = valve
+					except Valve.DoesNotExist:
+						valve = None
+						errors.append("Valve does not exist; liquid will still be created")
+				liquid.save()
+				success = True
 		else:
 			success = False
 			errors.append("Not all necessary fields () were provied")
@@ -73,17 +89,45 @@ def liquid(request):
 			data = {"liquids": serialize_liquids([liquid])}
 		else:
 			data = {"liquids": serialize_liquids(Liquid.objects.all())}
-	return HttpResponse(json.dumps(data))
+	return HttpResponse(json.dumps(data), content_type="application/json")
 			
 
-def recipe(request):
+def recipes(request):
 	if request.method == 'POST':
 		#Register a new recipe
-		if(all(x in request.POST for x in ['name', 'components'])):
-			success = True
+		errors = []		
+		if('recipe_pk' in request.POST):
+			#Update this recipe
+			try:
+				recipe = Recipe.objects.get(pk=request.POST["recipe_pk"])
+			except Recipe.DoesNotExist:
+				recipe = None
+				success = False
+				errors.append("Recipe does not exist")
+		elif(any(x in request.POST for x in ['name', 'components'])):
+			recipe = Recipe()		
+		if recipe is not None:
+			if 'delete' in request.POST and request.POST['delete'] is True:					
+				#delete this recipe
+				recipe.delete()
+				success = true
+			else:
+				if 'name' in request.POST:
+					recipe.name = request.POST['name']
+				if 'components' in request.POST:
+					for component in request.POST['components']:
+						try:
+							liquid = Liquid.objects.get(pk=component.pk)
+							c_field = LiquidAmount(recipe=recipe, liquid=liquid, volume=component.volume)
+						except Liquid.DoesNotExist:
+							liquid = None
+							errors.append("Liquid did not exist, please add it before making a recipe")	
+				recipe.save()
+				success = True
 		else:
 			success = False
-		data = {"success": success}
+			errors.append("Not all necessary fields were provied or recipe does not exist.")
+		data = {"success": success, "errors": errors}
 	elif request.method == 'GET':
 		#Get all recipes or a specific recipe
 		if "name" in request.GET:
@@ -95,10 +139,10 @@ def recipe(request):
 			data = {"recipes": serialize_recipes([recipe])}
 		else:
 			data = {"recipes": serialize_recipes(Recipe.objects.all())}
-	return HttpResponse(json.dumps(data))
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 
-def drink(request):
+def drinks(request):
 	print "\n=============================\nDRANK\n=============================\n"
 	if request.method == 'POST':
 		#Make a drink?
@@ -112,7 +156,7 @@ def drink(request):
 		data = json.dumps({"success": success})
 	elif request.method == 'GET':
 		data = {"drinkRequests": serializers.serialize('json', DrinkRequest.objects.all())}
-	return HttpResponse(json.dumps(data))
+	return HttpResponse(json.dumps(data), content_type="application/json")
 
 def serialize_recipes(recipes):
 	result = []

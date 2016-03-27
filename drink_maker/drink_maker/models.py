@@ -14,8 +14,7 @@ class Valve(models.Model):
 
 class Liquid(models.Model):
 	name = models.CharField(max_length=128)
-	is_available = models.BooleanField(default=False)
-	density = models.DecimalField(default=1.0, max_digits=6, decimal_places=4)
+	density = models.DecimalField(default=1.0, max_digits=6, decimal_places=2)
 	valve = models.OneToOneField(Valve, blank=True, null=True)
 
 	def __repr__(self):

@@ -1,0 +1,30 @@
+.drink-maker-container {
+	width: 80%;
+}
+
+.valve-config-container {
+	display: none;
+}
+
+.recipe-editor-container {
+	display: none;
+}
+
+.liquid-editor-container {
+	display: none;
+}
+
+.dm-recipe-container p {
+    margin: 0 0 0 25px;
+}
+.dm-recipe-container {
+	height: 200px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.cur-point {
+	cursor: pointer;
+}
