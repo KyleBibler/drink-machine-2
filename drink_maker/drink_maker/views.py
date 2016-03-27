@@ -235,7 +235,10 @@ def serialize_valves(valves):
 		v["servo_pin"] = valve.servo_pin
 		v["angle_open"] = valve.angle_open
 		v["angle_closed"] = valve.angle_closed
-		v["liquid"] = {"pk": valve.liquid.pk, "name": valve.liquid.name}
+		if valve.liquid is not None:
+			v["liquid"] = {"pk": valve.liquid.pk, "name": valve.liquid.name}
+		else:
+			v["liquid"] = None
 		result.append(v)
 	return result
 
