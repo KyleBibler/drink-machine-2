@@ -60,8 +60,9 @@ angular.module('Barkeep', [
 	'ngResource'
 ])
 
-.config(['$httpProvider', function($httpProvider) {
+.config(['$httpProvider', '$resourceProvider', function($httpProvider, $resourceProvider) {
 	$httpProvider.defaults.headers.post['X-CSRFToken'] = csrftoken;
+	$resourceProvider.defaults.stripTrailingSlashes = false;
 }])
 
 .controller('MainCtrl', ['$scope', 'RestApi', function ($scope, RestApi) {
@@ -104,9 +105,19 @@ angular.module('Barkeep', [
 	}
 }])
 
-.directive('bkLiquid', [function() {
+.directive('bkLiquid', ['RestApi', function(RestApi) {
 	function link (scope, element, attr) {
+		scope.editing = {value: false}
+		scope.enableEdit = function(editing) {
+			scope.editing.value = editing;
+		}
+		scope.saveEdit = function() {
+			RestApi.editLiquid(scope.liquid, function() {
+				scope.editing.value = false;
+			});
+		}
 
+		scope.valves = RestApi.getValves();
 	};
 
 	return {
@@ -120,8 +131,8 @@ angular.module('Barkeep', [
 }])
 
 .factory('RestApi', ['$resource', function ($resource) {
-	var recipeApi = $resource('/recipes/:recipeId', {recipeId: 'recipe_pk'}),
-		liquidApi = $resource('/liquids/:liquidId', {liquidId: 'liquid_pk'}),
+	var recipeApi = $resource('/recipes/:recipeId/', {recipeId: 'recipe_pk'}),
+		liquidApi = $resource('/liquids/:liquidId/', {liquidId: '@pk'}),
 		valveApi = $resource('/valves/:valveId', {valveId: 'valve_pk'})
 
 	return {
@@ -132,8 +143,7 @@ angular.module('Barkeep', [
 			return liquidApi.query();
 		},
 		addLiquid: function(liquid, callback) {
-			var newLiquid = new liquidApi(liquid);
-			newLiquid.$save(callback);
+			liquidApi.save(liquid, callback);
 		},
 		editLiquid: function(liquid, callback) {
 			liquid.$save(callback);

@@ -1,6 +1,7 @@
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template import RequestContext
 
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core import serializers
 from .managers import ServoManager, ScaleManager, DrinkManager
@@ -45,42 +46,47 @@ def valves(request):
 		data = serialize_valves(Valve.objects.all())
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
-def liquids(request):
+def liquids(request, pk=None):
+	errors = []
 	if request.method == 'POST':
-		#Register, update, or delete a liquid
-		errors = []
+		#Register, update, or delete a liquid		
 		liquid = None
-		print request.POST
-		if('liquid_pk' in request.POST):
+		request_data = json.loads(request.body)
+		if pk:
 			#Update this liquid			
 			try:
-				liquid = Liquid.objects.get(pk=request.POST["liquid_pk"])
+				liquid = Liquid.objects.get(pk=pk)
 			except Liquid.DoesNotExist:
 				success = False
 				errors.append("Liquid does not exist")
-		elif 'name' in request.POST:
+		elif 'name' in request_data:
 			liquid = Liquid()
 		else:
 			success = False
-			errors.append("Not all necessary fields () were provied")
+			errors.append("Not all necessary fields (name) were provied")
 		if liquid is not None:
-			if 'name' in request.POST:
-				liquid.name = request.POST['name']
-			if 'density' in request.POST:
-				liquid.density = request.POST['density']
-			if 'valve_pk' in request.POST:
+			if 'name' in request_data:
+				liquid.name = request_data['name']
+			if 'density' in request_data:
+				liquid.density = float(request_data['density'])
+			if 'valve_pk' in request_data:
 				try:
-					valve = Valve.objects.get(pk=request.POST["valve_pk"])
+					valve = Valve.objects.get(pk=request_data["valve_pk"])
 					liquid.valve = valve
 				except Valve.DoesNotExist:
 					valve = None
 					errors.append("Valve does not exist; liquid will still be created")
 			liquid.save()
-			success = True			
-		data = {"success": success, "errors": errors}
+			data = serialize_liquids([liquid])[0]		
 	elif request.method == 'GET':
 		#Get all liquids or a single liquid
-		if "name" in request.GET:
+		if pk:
+			try:
+				liquid = Liquid.objects.get(pk=pk)
+			except Liquid.DoesNotExist:
+				liquid = {}
+			data = serialize_liquids([liquid])
+		elif "name" in request.GET:
 			#get the specific recipe
 			try:
 				liquid = Liquid.objects.get(name=request.GET["name"])
@@ -89,6 +95,14 @@ def liquids(request):
 			data = serialize_liquids([liquid])
 		else:
 			data = serialize_liquids(Liquid.objects.all())
+	elif request.method == 'DELETE' and pk is not None:
+		try:
+			liquid = Liquid.objects.get(pk=pk)
+			liquid.delete()
+		except Liquid.DoesNotExist:
+			data = {"success": False}
+	else:
+		data = {"success": False}
 	return HttpResponse(json.dumps(data), content_type="application/json")
 			
 def recipes(request):
@@ -189,9 +203,9 @@ def serialize_liquids(liquids):
 		l = {}
 		l["pk"] = liquid.pk
 		l["name"] = liquid.name
+		l["density"] = float(liquid.density)
 		if liquid.valve is not None:
 			l["valve"] = liquid.valve.pk
-			l["valve_pin"] = liquid.valve.servo_pin
 		else:
 			l["valve"] = None
 		result.append(l)

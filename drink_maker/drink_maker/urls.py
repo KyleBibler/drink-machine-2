@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^recipes/', views.recipes, name='recipe'),
     url(r'^valves/', views.valves, name='valve'),
     url(r'^drinks/', views.drinks, name='drink'),
-    url(r'^liquids/', views.liquids, name='liquid'),
+    url(r'^liquids/$', views.liquids, name='liquid'),
+    url(r'^liquids/(?P<pk>\d+)/$', views.liquids, name='liquid'),
     url(r'^$', views.index, name='index')
 ]
