@@ -260,7 +260,7 @@ angular.module('Barkeep', [
 			return new recipeApi({name: 'Untitled', components: []});
 		},
 		makeDrink: function (recipe_pk) {
-			drinksApi.save({recipe_pk: recipe_pk});
+			drinksApi.get({recipe_pk: recipe_pk});
 		},
 		getValve: function (valve_pk) {
 			return valveApi.get({valveId: valve_pk});
