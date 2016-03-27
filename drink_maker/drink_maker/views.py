@@ -15,32 +15,27 @@ def index(request):
 	print "I am here"
 	return render(request, 'drink_maker/index.html')
 
-def valves(request):
+def valves(request, pk=None):
 	if request.method == 'POST':
 		#Register a liquid to a valve
 		errors = []
-		if(all(x in request.POST for x in ['gpin', 'angle_closed', 'angle_open'])):
-			if('valve_pk' in request.POST):
-				#Update a valve
-				try:
-					valve = Valve.objects.get(pk=request.POST["valve_pk"])
-				except Valve.DoesNotExist:
-					valve = None
-					errors.append("Valve does not exist")
-					success = False
-			else:
-				#Make a new valve
-				valve = Valve()
-			if valve is not None:
-				valve.servo_pin = request.POST["gpin"]
-				valve.angle_closed = request.POST["angle_closed"]
-				valve.angle_open = request.POST["angle_open"]				
-				valve.save()
-				success = True
+		request_data = yaml.safe_load(request.body)
+		if pk:
+			valve = Valve.objects.get(pk=pk)					
 		else:
-			success = False
-			errors.append("Not all necessary fields (gpin, angle_open, angle_closed) were provied")
-		data = {"success": success, "errors": errors}
+			#Make a new valve
+			valve = Valve()
+		if valve is not None:
+			valve.servo_pin = request_data["servo_pin"]
+			valve.angle_closed = request_data["angle_closed"]
+			valve.angle_open = request_data["angle_open"]
+			if 'liquid' in request_data:
+				liquid = Liquid.objects.get(pk=request_data['liquid']['pk'])
+				valve.liquid = liquid
+			else:
+				valve.liquid = None
+			valve.save()
+			data = serialize_valves([valve])[0]
 	elif request.method == 'GET':
 		#Get list of all current liquid registrations
 		print "Getting all valve registrations"
@@ -119,13 +114,14 @@ def recipes(request, pk=None):
 				newRecipe = yaml.safe_load(request.body)
 				#remove old components
 				recipe.name = newRecipe['name']
+				recipe.save()
 				for la in recipe.liquidamount_set.all():
 					la.delete()
 				for item in newRecipe['components']:
 					liquid = Liquid.objects.get(pk=item['pk'])
 					la = LiquidAmount(recipe=recipe, liquid=liquid, volume=item['volume'])
 					la.save()
-				recipe.save()
+				
 				data = serialize_recipes([recipe])[0]
 				success = True
 
@@ -133,6 +129,19 @@ def recipes(request, pk=None):
 				# recipe = None
 				success = False
 				errors.append("Recipe does not exist")
+		else:
+			# new recipe post
+			recipe = Recipe()
+			newRecipe = yaml.safe_load(request.body)
+			recipe.name = newRecipe['name']
+			recipe.save()
+			for item in newRecipe['components']: 
+				liquid = Liquid.objects.get(pk=item['pk'])
+				la = LiquidAmount(recipe=recipe, liquid=liquid, volume=item['volume'])
+				la.save()
+			
+			data = serialize_recipes([recipe])[0]
+
 			# data = {"success": success, "errors": errors}
 		# elif(any(x in request.POST for x in ['name', 'components'])):
 		# 	recipe = Recipe()		
@@ -169,6 +178,10 @@ def recipes(request, pk=None):
 			data = serialize_recipes([recipe])[0]
 		else:
 			data = serialize_recipes(Recipe.objects.all())
+
+	elif request.method == 'DELETE':
+		recipe = Recipe.objects.get(pk=pk)
+		recipe.delete()
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 
@@ -213,7 +226,9 @@ def serialize_valves(valves):
 		v = {}
 		v["pk"] = valve.pk
 		v["servo_pin"] = valve.servo_pin
-		v["liquid"] = valve.liquid.name	
+		v["angle_open"] = valve.angle_open
+		v["angle_closed"] = valve.angle_closed
+		v["liquid"] = {"pk": valve.liquid.pk, "name": valve.liquid.name}
 		result.append(v)
 	return result
 

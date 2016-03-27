@@ -41,14 +41,19 @@
 			</div>
 		</div>
 		<div class="recipe-editor-container" ng-switch-when="recipe">
+			<button class="btn btn-success" ng-click="addRecipe()">Add Recipe</button>
+			<br><br>
 			<div class="row">
-				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids">
+				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids" recipes="recipes">
 				</div>
 			</div>
 		</div>
 		<div class="liquid-editor-container" ng-switch-when="liquid">
 			<div class="row">
 				<div class="liquid-assign-container col-lg-8 col-md-8 col-sm-12">
+					<div class="row">
+						<div bk-liquid-valve ng-repeat="valve in valves" liquids="liquids" valve="valve"></div>
+					</div>
 				</div>
 				<div class="col-lg-4 col-md-4 col-sm-12" class="liquid-display-container">
 					<!-- Add Liquid -->
