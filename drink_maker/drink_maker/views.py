@@ -114,13 +114,14 @@ def recipes(request, pk=None):
 				newRecipe = yaml.safe_load(request.body)
 				#remove old components
 				recipe.name = newRecipe['name']
+				recipe.save()
 				for la in recipe.liquidamount_set.all():
 					la.delete()
 				for item in newRecipe['components']:
 					liquid = Liquid.objects.get(pk=item['pk'])
 					la = LiquidAmount(recipe=recipe, liquid=liquid, volume=item['volume'])
 					la.save()
-				recipe.save()
+				
 				data = serialize_recipes([recipe])[0]
 				success = True
 
@@ -128,6 +129,19 @@ def recipes(request, pk=None):
 				# recipe = None
 				success = False
 				errors.append("Recipe does not exist")
+		else:
+			# new recipe post
+			recipe = Recipe()
+			newRecipe = yaml.safe_load(request.body)
+			recipe.name = newRecipe['name']
+			recipe.save()
+			for item in newRecipe['components']: 
+				liquid = Liquid.objects.get(pk=item['pk'])
+				la = LiquidAmount(recipe=recipe, liquid=liquid, volume=item['volume'])
+				la.save()
+			
+			data = serialize_recipes([recipe])[0]
+
 			# data = {"success": success, "errors": errors}
 		# elif(any(x in request.POST for x in ['name', 'components'])):
 		# 	recipe = Recipe()		
@@ -164,6 +178,10 @@ def recipes(request, pk=None):
 			data = serialize_recipes([recipe])[0]
 		else:
 			data = serialize_recipes(Recipe.objects.all())
+
+	elif request.method == 'DELETE':
+		recipe = Recipe.objects.get(pk=pk)
+		recipe.delete()
 	return HttpResponse(json.dumps(data), content_type="application/json")
 
 

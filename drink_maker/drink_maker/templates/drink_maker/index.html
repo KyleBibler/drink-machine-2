@@ -41,8 +41,10 @@
 			</div>
 		</div>
 		<div class="recipe-editor-container" ng-switch-when="recipe">
+			<button class="btn btn-success" ng-click="addRecipe()">Add Recipe</button>
+			<br><br>
 			<div class="row">
-				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids">
+				<div class="col-md-3 col-xs-12" ng-repeat="recipe in recipes" bk-recipe recipe="recipe" liquids="liquids" recipes="recipes">
 				</div>
 			</div>
 		</div>
