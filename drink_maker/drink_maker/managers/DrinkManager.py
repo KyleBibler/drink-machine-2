@@ -16,3 +16,24 @@ def add_request(recipe_name):
 
 def make_drink(recipe):
 	print "Making that drink"
+	for comp in recipe.liquidamount_set.all():
+		valve = comp.liquid.valve
+		target_weight = comp.volume * comp.liquid.density
+		if ScaleManager.device_ready():
+			tare = ScaleManager.get_data()
+			if tare > 0:
+				target_weight += tare
+				#there is a cup on the scale
+				ServoManager.set_pin(valve.servo_pin)
+				ServoManager.set_angle(valve.angle_open)
+				ServoManager.set_pin(0)
+				cutoff_time = time.time() + 10
+				while ScaleManager.get_data() < target_weight and time.time() < cutoff_time:
+					time.sleep(0.01)
+				ServoManager.set_pin(valve.servo_pin)
+				ServoManager.set_angle(valve.angle_closed)
+				ServoManager.set_pin(0)
+	return True
+
+
+	

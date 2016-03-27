@@ -1,0 +1,8 @@
+<div class="col-md-12">
+	<h5 style="margin: 0" ng-bind="liquid.name"></h5>
+	<p style="margin: 0 0 0 20px">Valve
+		<span ng-bind="liquid.valve"></span>: 
+		<span ng-if="liquid.valve==null">Not Assigned</span>
+		<span ng-if="liquid.valve" ng-bind="'pin ' + liquid.valve_pin"></span>
+	</p>	
+</div>

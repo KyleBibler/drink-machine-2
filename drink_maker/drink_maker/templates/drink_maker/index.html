@@ -31,7 +31,6 @@
 
 	</aside>
 	<div class="main-content" ng-switch="view.value">
-		<h1>This is the Drink Maker</h1>
 		<div class="drink-maker-container" ng-switch-when="home">
 			<div class="dm-recipes-container" id="dmRecipesContainer">
 				<div ng-repeat="recipe in recipes">
@@ -42,10 +41,40 @@
 		<div class="recipe-editor-container" ng-switch-when="recipe">
 		</div>
 		<div class="liquid-editor-container" ng-switch-when="liquid">
+			<div class="row">
+				<div class="liquid-assign-container col-lg-8 col-md-8 col-sm-12">
+				</div>
+				<div class="col-lg-4 col-md-4 col-sm-12" class="liquid-display-container">
+					<!-- Add Liquid -->
+					<div ng-if='addingLiquid' class="add-liquid-form">
+						<h3>
+							<button class="btn btn-danger text-right" ng-click="openAdd(false)">
+								Cancel
+							</button>
+							<button class="btn btn-success text-right" ng-click="addLiquid(liquidForm)">
+								Save
+							</button>
+						</h3>
+						<div class="form-group" ng-class="{'has-error': liquidError.value}">
+							<input type="text" class="form-control" id="liquidName" ng-model="liquidForm.name" placeholder="Name">
+						</div>
+						<div class="form-group">
+							<input type="number" class="form-control" id="liquidDensity" ng-model="liquidForm.density" placeholder="Density (Optional)">							
+						</div>
+					</div>
+					<div ng-if='!addingLiquid'>
+						<h3>Liquids 
+							<button class="btn btn-success text-right" ng-click="openAdd(true)">
+								<i class="fa fa-plus"></i>
+							</button>
+						</h3>
+					</div>
+					<div bk-liquid ng-repeat="liquid in liquids" liquid="liquid"></div>
+				</div>				
+			</div>
 		</div>
 		<div class="valve-config-container" ng-switch-when="valve">
-		</div>		
-
+		</div>
 	</div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>

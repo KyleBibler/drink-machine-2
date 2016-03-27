@@ -49,34 +49,34 @@ def liquids(request):
 	if request.method == 'POST':
 		#Register, update, or delete a liquid
 		errors = []
-		if(any(x in request.POST for x in ['name', 'density', 'valve_pk'])):
-			if('liquid_pk' in request.POST):
-				#Update this liquid			
-				try:
-					liquid = Liquid.objects.get(pk=request.POST["liquid_pk"])
-				except Liquid.DoesNotExist:
-					liquid = None
-					success = False
-					errors.append("Liquid does not exist")
-			else:
-				liquid = Liquid()
-			if liquid is not None:
-				if 'name' in request.POST:
-					liquid.name = request.POST['name']
-				if 'density' in request.POST:
-					liquid.density = request.POST['density']
-				if 'valve_pk' in request.POST:
-					try:
-						valve = Valve.objects.get(pk=request.POST["valve_pk"])
-						liquid.valve = valve
-					except Valve.DoesNotExist:
-						valve = None
-						errors.append("Valve does not exist; liquid will still be created")
-				liquid.save()
-				success = True
+		liquid = None
+		print request.POST
+		if('liquid_pk' in request.POST):
+			#Update this liquid			
+			try:
+				liquid = Liquid.objects.get(pk=request.POST["liquid_pk"])
+			except Liquid.DoesNotExist:
+				success = False
+				errors.append("Liquid does not exist")
+		elif 'name' in request.POST:
+			liquid = Liquid()
 		else:
 			success = False
 			errors.append("Not all necessary fields () were provied")
+		if liquid is not None:
+			if 'name' in request.POST:
+				liquid.name = request.POST['name']
+			if 'density' in request.POST:
+				liquid.density = request.POST['density']
+			if 'valve_pk' in request.POST:
+				try:
+					valve = Valve.objects.get(pk=request.POST["valve_pk"])
+					liquid.valve = valve
+				except Valve.DoesNotExist:
+					valve = None
+					errors.append("Valve does not exist; liquid will still be created")
+			liquid.save()
+			success = True			
 		data = {"success": success, "errors": errors}
 	elif request.method == 'GET':
 		#Get all liquids or a single liquid
@@ -190,8 +190,9 @@ def serialize_liquids(liquids):
 		l["pk"] = liquid.pk
 		l["name"] = liquid.name
 		if liquid.valve is not None:
-			l["valve"] = liquid.valve.servo_pin	
+			l["valve"] = liquid.valve.pk
+			l["valve_pin"] = liquid.valve.servo_pin
 		else:
-			l["valve"] = "null"
+			l["valve"] = None
 		result.append(l)
 	return result

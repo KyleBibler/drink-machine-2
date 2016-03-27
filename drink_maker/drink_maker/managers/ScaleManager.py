@@ -10,14 +10,14 @@ PRODUCT_ID = 0x8003
 device = usb.core.find(idVendor=VENDOR_ID,
                        idProduct=PRODUCT_ID)
 
+def device_ready():
+	return device is None
 
 def get_scale_data():	
 	# use the first/default configuration
-	if device is None:
-	    raise ValueError('Device not found')
-	else:
-	    print ("Device detected!")
-
+	if not device_ready():
+		return False
+		
 	reattach = False
 	if device.is_kernel_driver_active(0):
 	    reattach = True
