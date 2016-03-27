@@ -3,16 +3,22 @@
     <h3 class="panel-title recipe-title">
     	
     	<input ng-if="state == 'editing'" class="form-control" ng-model="recipe.name"/>
-    	<span ng-if="state == 'display'">{{recipe.name}}
-    	<button class="btn btn-link" style="float: right" ng-click="deleteRecipe(recipe)"><i class="fa fa-times"></i></button>
-    	<button class="btn btn-link" style="float: right" ng-click="edit()"><i class="fa fa-pencil"></i></button></span>
+    	<span ng-if="state == 'display' || state == 'make'">{{recipe.name}}
+    		<span ng-if="state == 'display'">
+		    	<button class="btn btn-link" style="float: right" ng-click="deleteRecipe(recipe)"><i class="fa fa-times"></i></button>
+		    	<button class="btn btn-link" style="float: right" ng-click="edit()"><i class="fa fa-pencil"></i></button>
+		    </span>
+    	</span>
     </h3>
   </div>
   <div class="panel-body">
-    <div ng-if="state == 'display'">
+    <div ng-if="state == 'display' || 'make'">
 	    <ul>
 			<li ng-repeat="item in recipe.components">{{item.volume}} mL - {{item.name}}</li>
 		</ul>
+		<div ng-if="state == 'make'">
+			<button class="btn btn-success" style="width:100%" ng-click="makeDrink(recipe)">Make Drink</button>
+		</div>
 	</div>
 	<div ng-if="state == 'editing'">
 		<div ng-repeat="item in recipe.components" class="row">
@@ -43,5 +49,6 @@
 		<button class="btn btn-success" ng-click="saveRecipe(recipe)">Save</button>
 		<button class="btn btn-default" ng-click="cancelSave()">Cancel</button>
 	</div>
+
   </div>
 </div>
