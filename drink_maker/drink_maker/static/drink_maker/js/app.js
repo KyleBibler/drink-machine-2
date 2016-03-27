@@ -1,68 +1,11 @@
-
-
-// var loadRecipeHtml = function(recipes) {
-// 	var html = "";
-// 	recipes.forEach(function(recipe) {
-// 		html += '<div class="re-recipe-container>"';
-
-// 		html += '</div>';
-// 	});
-// }
-
-// var getRecipes = function() {
-// 	$.ajax({
-// 		url: "/recipes/",
-// 	    type: "GET",
-// 	    success: function(json) {
-// 	      	recipes = json["recipes"];
-
-// 	    	loadDrinkMakerHtml(recipes);
-// 	    	loadRecipeHtml(recipes);
-// 	    }
-// 	});
-// };
-
-// var getValves = function() {
-// 	$.ajax({
-// 		url: "/valves/",
-// 	    type: "GET",
-// 	    success: function(json) {
-// 	      	valves = json["valves"];
-// 	    }
-// 	});
-// };
-
-// var getLiquids = function() {
-// 	$.ajax({
-// 		url: "/liquids/",
-// 	    type: "GET",
-// 	    success: function(json) {
-// 	      	liquids = json["liquids"];
-// 	    }
-// 	});
-// };
-
-// var pollDrinkRequest = function() {
-// 	$.ajax({
-// 		url: "/drinks/",
-// 	    type: "GET",
-// 	    success: function(json) {
-// 	      	if(json.length > 0) {
-// 	      		console.log("There is a request being fulfilled");
-// 	      	}
-// 	    }
-// 	});
-// }
-
-// getRecipes();
-
 angular.module('Barkeep', [
 	'ngResource'
 ])
 
 .config(['$httpProvider', '$resourceProvider', function($httpProvider, $resourceProvider) {
-	$httpProvider.defaults.headers.post['X-CSRFToken'] = csrftoken;
-	$resourceProvider.defaults.stripTrailingSlashes = false;
+    // $httpProvider.defaults.headers.post['X-CSRFToken'] = $.cookie('csrftoken');
+    $httpProvider.defaults.headers.post['X-CSRFToken'] = csrftoken;
+    $resourceProvider.defaults.stripTrailingSlashes = false;
 }])
 
 .controller('MainCtrl', ['$scope', 'RestApi', function ($scope, RestApi) {
@@ -70,10 +13,32 @@ angular.module('Barkeep', [
 	$scope.liquids = RestApi.getLiquids();
 	$scope.valves = RestApi.getValves();
 	$scope.view = {value: 'home'};
-
+	$scope.title = "Make a Drink";
 	$scope.addingLiquid = false;
 	$scope.liquidForm = {};
 	$scope.liquidError = {value: false};
+
+	$scope.changeView = function (view) {
+		$scope.view.value = view;
+		switch (view) {
+			case 'home': 
+				$scope.title = "Make a Drink";
+				break;
+			case 'recipe':
+				$scope.title = "Recipes";
+				break;
+			case 'liquid':
+				$scope.title = "Liquids";
+				break;
+			case 'valve': 
+				$scope.title = "Valve Config";
+				break;
+		}
+	}
+
+	$scope.addRecipe = function () {
+		
+	};
 
 	$scope.openAdd = function(isAdding) {
 		$scope.addingLiquid = isAdding;
@@ -105,6 +70,64 @@ angular.module('Barkeep', [
 	}
 }])
 
+.directive('bkRecipe', ['RestApi', function (RestApi) {
+	function link (scope, element, attr) {
+		scope.state = 'display';
+		scope.deleteRecipe = function (recipe) {
+			RestApi.deleteRecipe(recipe);
+		};
+
+		scope.edit = function () {
+			scope.state = scope.state == 'editing' ? 'display' : 'editing';
+			if (scope.state == 'display') {
+				scope.recipe = RestApi.getRecipe(scope.recipe.pk);
+			}
+		}
+
+		scope.filterLiquids = function (hash) {
+			return !scope.recipe.components.some(function (e) {
+				return e.name == hash.name;
+			});
+		};
+
+		scope.addLiquid = function (liquid) {
+			if (liquid) {
+				scope.recipe.components.push({
+					name: liquid.name,
+					volume: 45,
+					pk: liquid.pk
+				});
+				scope.currentLiquid = '';
+			}
+		}
+
+		scope.removeLiquid = function (liquid) {
+			scope.recipe.components.splice(scope.recipe.components.indexOf(liquid), 1)
+		};
+
+		scope.saveRecipe = function (recipe) {
+			RestApi.saveRecipe(recipe, function () {
+				scope.state = 'display';
+			});
+		}
+
+	}
+
+	return {
+		templateUrl: '/static/drink_maker/partials/bkRecipe.html',
+		restrict: 'A',
+		scope: {
+			recipe: '=',
+			liquids: '='
+		},
+		link: link
+	};
+}])
+
+
+
+
+
 .directive('bkLiquid', ['RestApi', function(RestApi) {
 	function link (scope, element, attr) {
 		scope.editing = {value: false}
@@ -130,10 +153,11 @@ angular.module('Barkeep', [
 	}
 }])
 
+
 .factory('RestApi', ['$resource', function ($resource) {
-	var recipeApi = $resource('/recipes/:recipeId/', {recipeId: 'recipe_pk'}),
+	var recipeApi = $resource('/recipes/:recipeId/', {recipeId: '@pk'}),
 		liquidApi = $resource('/liquids/:liquidId/', {liquidId: '@pk'}),
-		valveApi = $resource('/valves/:valveId', {valveId: 'valve_pk'})
+		valveApi = $resource('/valves/:valveId', {valveId: 'valve_pk'});
 
 	return {
 		getRecipes: function () {
@@ -150,7 +174,16 @@ angular.module('Barkeep', [
 		},
 		getValves: function() {
 			return valveApi.query();
+		}, 
+		getRecipe: function (pk) {
+			return recipeApi.get({recipeId: pk});
+		},
+		saveRecipe: function (recipe, callback) {
+			recipe.$save(callback);
+			// recipeApi.save({key: value}, function() )
+		},
+		deleteRecipe: function (recipe, callback) {
+			recipe.$delete(callback);
 		}
-
 	};
 }]);

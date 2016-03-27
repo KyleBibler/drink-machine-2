@@ -17,6 +17,7 @@
 	cursor: pointer;
 }
 
+
 .text-right {
 	text-align: right;
 }
@@ -34,5 +35,9 @@
 	.drink-maker-container {
 		width: 100%;
 	}
+}
+
+.recipe-title {
+	line-height: 35px
 }
 
